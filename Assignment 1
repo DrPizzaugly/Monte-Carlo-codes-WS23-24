@@ -1,0 +1,121 @@
+% Define the function
+f = @(x) 0.4865 .* sinh(sqrt(2 .* x)) .* exp(-x);
+
+% Set the interval for optimization
+lower_bound = 0;  % Set your lower bound
+upper_bound = 12; % Set your upper bound
+[x_max, f_max] = fminbnd(@(x) -f(x), lower_bound, upper_bound);
+fprintf('Maximum value of f: %f\n', -f_max);
+fprintf('Value of x at maximum: %f\n', x_max);
+
+% Plot the function
+fplot(f, [0 12]);
+%hold on;
+%plot(x_max, -f_max, 'ro', 'MarkerSize', 5, 'MarkerFaceColor', 'r');
+
+%title('Function and Maximum Point');
+%legend('f(x)', 'Maximum Point');
+%hold off;
+
+%Mean value (Expectation value)
+f3 = @(x) x .* (0.4865 .* sinh(sqrt(2 .* x)) .* exp(-x));
+%expectation value
+expect_val = integral(f3, 0, 10000)
+
+%fprintf('Result of the integration: %f\n', result);
+
+%Variance
+f4 = @(x) (x.^2) .* ((0.4865 .* sinh(sqrt(2 .* x)) .* exp(-(x))));
+el1 = integral(f4, 0, 100000);
+el2 = expect_val.^2;
+varx = el1 - el2
+
+std_dev = sqrt(varx)
+% Plot the function
+a = 12345678;
+c = 87654321;
+m = 2.^31-1;
+n = 100; %change this to 1 for point 3
+ran = linspace(1,600,n);
+mean_array = [];
+var_Y_array = [];
+std_dev_Y_array = [];
+vals_in_int = [];
+vals_not_in_int = [];
+var_m_array = [];
+std_dev_my_array = [];
+the_last_one = [];
+for i = 1:numel(ran)
+    x_in = [];
+    x_out = [];
+    y_out = [];
+    y_in = [];
+    x = zeros(1,10.^4);
+    u = zeros(1,10.^4);
+    x(1) = ran(i);
+    for j=2:numel(x)
+        x(j) = mod(a*x(j-1)+c,m);
+        u(j) = x(j)/m;
+    end
+
+    X = u(1:end-1).*20;
+    Y = u(2:end).*(-f_max);
+    f_values = f(X);
+    for j=1:numel(Y)
+        if Y(j) < f_values(j)
+            x_in = [x_in, X(j)];
+            y_in = [y_in, Y(j)];
+        else
+            x_out = [x_out, X(j)];
+            y_out = [y_out, Y(j)];
+        end
+    end
+
+    meanx = sum(x_in)/(length(x_in));
+    var_Y = sum(x_in.^2)/(length(x_in))-(meanx.^2); %sy
+    std_dev_Y = sqrt(var_Y);
+    mean_array(end+1) = sum(x_in)/(length(x_in));
+    var_Y_array(end+1) = sum(x_in.^2)/(length(x_in))-(meanx.^2);
+    std_dev_Y_array(end+1) = sqrt(var_Y);
+
+    % for j = 1:numel(x_in)
+    %     l_bound = meanx - 1.*mean(std_dev_Y_array);
+    %     u_bound = meanx + 1.*mean(std_dev_Y_array);
+    %     if x_in(j) >= l_bound && 2.x_in(j) <= u_bound
+    %         the_last_one(end+1) = x_in(j);
+    %     end    
+    % end
+
+
+    var_my = var_Y/(length(x_in));
+    var_m_array(end+1) = var_my;
+    std_dev_my = std_dev_Y/(sqrt(length(x_in)));
+    std_dev_my_array(end+1) = std_dev_my;
+    
+
+    % uncomment this loop for point 3
+    % for j = 1:numel(x_in)
+    %     l_bound = mean(mean_array) - mean(std_dev_Y_array);
+    %     u_bound = mean(mean_array) + mean(std_dev_Y_array);
+    %     if x_in(j) >= l_bound && x_in(j) <= u_bound
+    %         the_last_one(end+1) = x_in(j);
+    %     end
+    % end
+    % P2 = length(the_last_one)/(length(x_in))
+
+end    
+
+%%%% comment this loop for point 5
+for i=1:n
+    lowerBound = mean_array(i) - 3.*mean(std_dev_my_array);
+    upperBound = mean_array(i) + 3.*mean(std_dev_my_array);
+    if 2.010573803780584 >= lowerBound && 2.010573803780584 <= upperBound
+        vals_in_int(end+1) = mean_array(i);
+    end
+end
+P = length(vals_in_int)/n
+%histogram(mean_array, 15)
+% l_bound = mean(mean_array) - mean(std_dev_Y_array)
+% u_bound = mean(mean_array) + mean(std_dev_Y_array)
+
+hold on;
