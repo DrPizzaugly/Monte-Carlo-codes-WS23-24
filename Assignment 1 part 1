@@ -1,0 +1,81 @@
+% Define the function
+f = @(x) 0.4865 .* sinh(sqrt(2 .* x)) .* exp(-x);
+
+% Set the interval for optimization
+lower_bound = 0;  % Set your lower bound
+upper_bound = 12; % Set your upper bound
+[x_max, f_max] = fminbnd(@(x) -f(x), lower_bound, upper_bound);
+fprintf('Maximum value of f: %f\n', -f_max);
+fprintf('Value of x at maximum: %f\n', x_max);
+
+% Plot the function
+fplot(f, [0 12]);
+hold on;
+% Mark the maximum point on the plot
+%plot(x_max, -f_max, 'ro', 'MarkerSize', 5, 'MarkerFaceColor', 'r');
+
+%title('Function and Maximum Point');
+%legend('f(x)', 'Maximum Point');
+%hold off;
+
+%Mean value (Expectation value)
+f3 = @(x) x .* (0.4865 .* sinh(sqrt(2 .* x)) .* exp(-x));
+
+% Perform the integration
+expect_val = integral(f3, 0, 10000)
+
+% Display the result
+%fprintf('Result of the integration: %f\n', result);
+
+%Variance
+f4 = @(x) (x.^2) .* ((0.4865 .* sinh(sqrt(2 .* x)) .* exp(-(x))));
+el1 = integral(f4, 0, 100000);
+el2 = expect_val.^2;
+varx = el1 - el2
+
+std_dev = sqrt(varx)
+
+%%%%%
+
+a = 12345678;
+c = 87654321;
+m = 2.^31-1;
+x = zeros(1,10.^5);
+u = zeros(1,10.^5);
+x(1) = 4000;
+for i=2:numel(x)
+    x(i) = mod(a*x(i-1)+c,m);
+    u(i) = x(i)/m;
+end
+X = u(1:end-1).*12;
+Y = u(2:end).*(-f_max);
+x_in = [];
+x_out = [];
+y_out = [];
+y_in = [];
+f_values = f(X);
+%scatter(X, Y, '.');
+hold on;
+for i=1:numel(Y)
+    if Y(i) < f_values(i)
+        x_in = [x_in, X(i)];
+        y_in = [y_in, Y(i)];
+    else
+        x_out = [x_out, X(i)];
+        y_out = [y_out, Y(i)];
+    end
+end
+
+
+%within = Y < f_values;
+%scatter(X(within), Y(within), 'r', 'filled');
+scatter(x_in, y_in, 4, 'r', 'filled')
+scatter(x_out, y_out, 4, 'b', 'filled')
+
+mean = sum(x_in)/(length(x_in))
+var_Y = sum(x_in.^2)/(length(x_in))-(mean.^2)
+std_devY = sqrt(var_Y)
+
+%var_my = var_Y/(length(n_of_m))
+%std_dev_my = std_devY/sqrt(length(n_of_m))
+hold off;
